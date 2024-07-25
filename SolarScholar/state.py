@@ -1,6 +1,8 @@
-import re
 import reflex as rx
-from openai import OpenAI
+from langchain_upstage import UpstageLayoutAnalysisLoader
+from langchain_core.prompts import PromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+from langchain_upstage import ChatUpstage
 
 
 class QA(rx.Base):
@@ -19,8 +21,17 @@ class ChatState(rx.State):
     """The app state."""
 
     api_key: str = ""
-    prompt: str = "You are a friendly chatbot named 'Solar'. Respond in markdown."
-    chat_model: str = "solar-1-mini-chat"
+    prompt: str = """
+        Please provide most correct answer from the following context. 
+        Think step by step and look the html tags and table values carefully to provide the most correct answer.
+        If the answer is not present in the context, please write "The information is not present in the context."
+        ---
+        Question: {question}
+        ---
+        Context: {Context}
+        """
+    pdf_processing: bool = False
+    loader_processing: bool = False
 
     # A dict from the chat name to the list of questions and answers.
     chats: dict[str, list[QA]] = DEFAULT_CHATS
@@ -70,6 +81,32 @@ class ChatState(rx.State):
         """
         return list(self.chats.keys())
 
+    async def handle_upload(self, files: list[rx.UploadFile]):
+        """Handle the upload of file(s).
+        Args:
+            files: The uploaded files.
+        """
+        self.pdf_processing = False
+        for file in files:
+            upload_data = await file.read()
+            outfile = rx.get_upload_dir() / file.filename
+            # Save the file.
+            with outfile.open("wb") as file_object:
+                file_object.write(upload_data)
+            
+        self.pdf_processing = True
+        self.pdf_path = outfile
+
+    async def handle_la(self):
+        self.loader_processing = False
+        self.layzer = UpstageLayoutAnalysisLoader(
+            self.pdf_path, 
+            output_type="text",
+            api_key=self.api_key
+        )
+        self.docs = self.layzer.load()
+        self.loader_processing = True
+
     async def process_question(self, form_data: dict[str, str]):
         # Get the question from the form
         question = form_data["question"]
@@ -98,47 +135,13 @@ class ChatState(rx.State):
         self.processing = True
         yield
 
-        # Build the messages.
-        messages = [
-            {
-                "role": "system",
-                "content": self.prompt,
-            }
-        ]
-        for qa in self.chats[self.current_chat]:
-            messages.append({"role": "user", "content": qa.question})
-            messages.append({"role": "assistant", "content": qa.answer})
+        llm = ChatUpstage(api_key=self.api_key)
 
-        # Remove the last mock answer.
-        messages = messages[:-1]
+        prompt_template = PromptTemplate.from_template(self.prompt)
+        chain = prompt_template | llm | StrOutputParser()
+        answer_text = chain.invoke({"question": question, "Context": self.docs})
 
-        # Start a new session to answer the question.
-        client = OpenAI(
-            api_key=self.api_key, base_url="https://api.upstage.ai/v1/solar"
-        )
-        try:
-            session = client.chat.completions.create(
-                model=self.chat_model,
-                messages=messages,
-                stream=True,
-            )
-            for item in session:
-                if hasattr(item.choices[0].delta, "content"):
-                    answer_text = item.choices[0].delta.content
-                    # Ensure answer_text is not None before concatenation
-                    if answer_text is not None:
-                        self.chats[self.current_chat][-1].answer += answer_text
-                    else:
-                        answer_text = ""
-                        self.chats[self.current_chat][-1].answer += answer_text
-                    self.chats = self.chats
-                    yield
-        except:
-            if re.search(r"[ㄱ-ㅎ가-힣]", messages[-1]["content"]):
-                answer_text = "연결에 문제가 있는 것 같습니다. 주된 이유는 API 키가 잘못되었기 때문입니다. 설정에서 올바른 API 키를 입력하고 다시 시도해 주세요."
-            else:
-                answer_text = "It seems that there is a connection issue. The main reason is that your API key is incorrect. Please enter the correct API key in the settings above and try again."
-            self.chats[self.current_chat][-1].answer += answer_text
+        self.chats[self.current_chat][-1].answer += answer_text
 
         # Toggle the processing flag.
         self.processing = False

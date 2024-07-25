@@ -57,6 +57,72 @@ def sidebar(trigger) -> rx.Component:
         direction="left",
     )
 
+def pdfbar(trigger) -> rx.Component:
+    """The pdfbar component."""
+    return rx.drawer.root(
+        rx.drawer.trigger(trigger),
+        rx.drawer.overlay(),
+        rx.drawer.portal(
+            rx.drawer.content(
+                rx.vstack(
+                    rx.heading("Document", color=rx.color("mauve", 11)),
+                    rx.divider(),
+                    rx.markdown("This app is created to test Solar LayoutAnalyzer. Please visit to the [Upstage AI](https://developers.upstage.ai/) for information on other APIs."),
+                    rx.upload(
+                        rx.vstack(
+                            rx.button("Select File", color=rx.color("mauve", 11), bg="white", border=f"1px solid {rx.color("mauve", 11)}"),
+                            rx.text("Drag and drop files here or click to select files"),
+                        ),
+                        id="upload",
+                        multiple=False,
+                        accept = {
+                            "application/pdf": [".pdf"],
+                        },
+                        max_files=1,
+                        disabled=False,
+                        border=f"1px dotted {rx.color("mauve", 11)}",
+                        padding="5em",
+                    ),
+                    rx.hstack(
+                        rx.button(
+                            "Upload",
+                            is_loading=ChatState.pdf_processing,
+                            on_click=ChatState.handle_upload(rx.upload_files(upload_id="upload")),
+                            width="50%",
+                        ),
+                        rx.button(
+                            "Learn",
+                            is_loading=ChatState.loader_processing,
+                            on_click=ChatState.handle_la(),
+                            width="50%"
+                        ),
+                        width="100%",
+                    ),
+                    rx.cond(
+                        ChatState.pdf_processing,
+                        rx.text("pdf is uploaded"),
+                        rx.text("pdf is not uploaded"),
+                    ),
+                    rx.cond(
+                        ChatState.loader_processing,
+                        rx.text("learning is completed"),
+                        rx.text("learning is not completed"),
+                    ),
+                    align_items="stretch",
+                    width="100%",
+                ),
+                top="auto",
+                right="auto",
+                height="100%",
+                width="20em",
+                padding="2em",
+                background_color=rx.color("mauve", 2),
+                outline="none",
+            )
+        ),
+        direction="left",
+    )
+
 
 def settingbar(trigger) -> rx.Component:
     """The sidebar component."""
@@ -68,7 +134,7 @@ def settingbar(trigger) -> rx.Component:
                 rx.vstack(
                     rx.heading("Settings", color=rx.color("mauve", 11)),
                     rx.divider(),
-                    rx.markdown("This app is created to test Solar LLM. Please visit to the [Upstage AI](https://developers.upstage.ai/) for information on API keys and other various APIs."),
+                    rx.markdown("This app is created to test Solar LayoutAnalyzer. Please visit to the [Upstage AI](https://developers.upstage.ai/) for information on API keys."),
                     rx.divider(),
                     rx.heading("API KEY", color=rx.color("mauve", 11), size="3"),
                     rx.input(
@@ -83,11 +149,7 @@ def settingbar(trigger) -> rx.Component:
                     rx.text_area(
                         value=ChatState.prompt,
                         on_change=ChatState.set_prompt,
-                    ),
-                    rx.radio(
-                        ["solar-1-mini-chat", "solar-1-mini-chat-ja"],
-                        default_value="solar-1-mini-chat",
-                        on_change=ChatState.set_chat_model,
+                        resize="vertical",
                     ),
                     rx.button(
                         "Apply",
@@ -167,6 +229,15 @@ def navbar():
                     rx.button(
                         rx.icon(
                             tag="settings",
+                            color=rx.color("mauve", 12),
+                        ),
+                        background_color=rx.color("mauve", 6),
+                    )
+                ),
+                pdfbar(
+                    rx.button(
+                        rx.icon(
+                            tag="file_up",
                             color=rx.color("mauve", 12),
                         ),
                         background_color=rx.color("mauve", 6),
