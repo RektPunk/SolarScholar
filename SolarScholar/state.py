@@ -21,7 +21,7 @@ DEFAULT_CHATS = {
 class ChatState(rx.State):
     """The app state."""
 
-    api_key: str = ""
+    api_key: str = "up_757ar2mLw0GeP9C6UzseTFTAuFQsC"
     prompt: str = """
         Please provide most correct answer from the following context. 
         Think step by step and look the html tags and table values carefully to provide the most correct answer.
@@ -33,7 +33,8 @@ class ChatState(rx.State):
         """
     pdf_processing: bool = False
     loader_processing: bool = False
-
+    pdf_path: str = ""
+    
     # A dict from the chat name to the list of questions and answers.
     chats: dict[str, list[QA]] = DEFAULT_CHATS
 
@@ -88,6 +89,7 @@ class ChatState(rx.State):
             files: The uploaded files.
         """
         self.pdf_processing = False
+        self.loader_processing = False
         for file in files:
             upload_data = await file.read()
             outfile = rx.get_upload_dir() / file.filename
@@ -99,9 +101,9 @@ class ChatState(rx.State):
         self.pdf_path = outfile
 
     async def handle_la(self):
-        self.loader_processing = False
+        self.pdf_processing = False
         self.layzer = UpstageLayoutAnalysisLoader(
-            self.pdf_path, output_type="html", api_key=self.api_key
+            self.pdf_path, output_type="text", api_key=self.api_key
         )
         self.docs = self.layzer.load()
         os.remove(self.pdf_path)

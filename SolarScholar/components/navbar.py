@@ -69,12 +69,14 @@ def pdfbar(trigger) -> rx.Component:
                     rx.heading("Document", color=rx.color("mauve", 11)),
                     rx.divider(),
                     rx.markdown(
-                        "This app is created to test Solar LayoutAnalyzer. Please visit to the [Upstage AI](https://developers.upstage.ai/) for information on other APIs."
+                        """This app is created to test Solar LayoutAnalyzer. Please visit to the [Upstage AI](https://developers.upstage.ai/) for information on other APIs. </br>
+                        You need to not only provide the API key but also 'Upload' the PDF and click 'Learn'. </br>
+                        If everything is ready, you will see the message 'I'm ready to chat.'"""
                     ),
                     rx.upload(
                         rx.vstack(
                             rx.button(
-                                "Select File",
+                                "File",
                                 color=rx.color("mauve", 11),
                                 bg="white",
                                 border=f"1px solid {rx.color("mauve", 11)}",
@@ -96,7 +98,6 @@ def pdfbar(trigger) -> rx.Component:
                     rx.hstack(
                         rx.button(
                             "Upload",
-                            is_loading=ChatState.pdf_processing,
                             on_click=ChatState.handle_upload(
                                 rx.upload_files(upload_id="upload")
                             ),
@@ -104,7 +105,6 @@ def pdfbar(trigger) -> rx.Component:
                         ),
                         rx.button(
                             "Learn",
-                            is_loading=ChatState.loader_processing,
                             on_click=ChatState.handle_la(),
                             width="50%",
                         ),
@@ -112,13 +112,13 @@ def pdfbar(trigger) -> rx.Component:
                     ),
                     rx.cond(
                         ChatState.pdf_processing,
-                        rx.text("PDF file is uploaded"),
-                        rx.text("PDF file is not uploaded"),
+                        rx.text("PDF upload completed."),
+                        rx.text(""),
                     ),
                     rx.cond(
                         ChatState.loader_processing,
-                        rx.text("Learning is completed"),
-                        rx.text("Learning is not completed"),
+                        rx.text("I'm ready to chat."),
+                        rx.text(""),
                     ),
                     align_items="stretch",
                     width="100%",
