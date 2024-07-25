@@ -1,3 +1,4 @@
+import os
 import reflex as rx
 from langchain_upstage import UpstageLayoutAnalysisLoader
 from langchain_core.prompts import PromptTemplate
@@ -93,18 +94,17 @@ class ChatState(rx.State):
             # Save the file.
             with outfile.open("wb") as file_object:
                 file_object.write(upload_data)
-            
+
         self.pdf_processing = True
         self.pdf_path = outfile
 
     async def handle_la(self):
         self.loader_processing = False
         self.layzer = UpstageLayoutAnalysisLoader(
-            self.pdf_path, 
-            output_type="text",
-            api_key=self.api_key
+            self.pdf_path, output_type="html", api_key=self.api_key
         )
         self.docs = self.layzer.load()
+        os.remove(self.pdf_path)
         self.loader_processing = True
 
     async def process_question(self, form_data: dict[str, str]):

@@ -57,6 +57,7 @@ def sidebar(trigger) -> rx.Component:
         direction="left",
     )
 
+
 def pdfbar(trigger) -> rx.Component:
     """The pdfbar component."""
     return rx.drawer.root(
@@ -67,15 +68,24 @@ def pdfbar(trigger) -> rx.Component:
                 rx.vstack(
                     rx.heading("Document", color=rx.color("mauve", 11)),
                     rx.divider(),
-                    rx.markdown("This app is created to test Solar LayoutAnalyzer. Please visit to the [Upstage AI](https://developers.upstage.ai/) for information on other APIs."),
+                    rx.markdown(
+                        "This app is created to test Solar LayoutAnalyzer. Please visit to the [Upstage AI](https://developers.upstage.ai/) for information on other APIs."
+                    ),
                     rx.upload(
                         rx.vstack(
-                            rx.button("Select File", color=rx.color("mauve", 11), bg="white", border=f"1px solid {rx.color("mauve", 11)}"),
-                            rx.text("Drag and drop files here or click to select files"),
+                            rx.button(
+                                "Select File",
+                                color=rx.color("mauve", 11),
+                                bg="white",
+                                border=f"1px solid {rx.color("mauve", 11)}",
+                            ),
+                            rx.text(
+                                "Drag and drop files here or click to select files"
+                            ),
                         ),
                         id="upload",
                         multiple=False,
-                        accept = {
+                        accept={
                             "application/pdf": [".pdf"],
                         },
                         max_files=1,
@@ -87,26 +97,28 @@ def pdfbar(trigger) -> rx.Component:
                         rx.button(
                             "Upload",
                             is_loading=ChatState.pdf_processing,
-                            on_click=ChatState.handle_upload(rx.upload_files(upload_id="upload")),
+                            on_click=ChatState.handle_upload(
+                                rx.upload_files(upload_id="upload")
+                            ),
                             width="50%",
                         ),
                         rx.button(
                             "Learn",
                             is_loading=ChatState.loader_processing,
                             on_click=ChatState.handle_la(),
-                            width="50%"
+                            width="50%",
                         ),
                         width="100%",
                     ),
                     rx.cond(
                         ChatState.pdf_processing,
-                        rx.text("pdf is uploaded"),
-                        rx.text("pdf is not uploaded"),
+                        rx.text("PDF file is uploaded"),
+                        rx.text("PDF file is not uploaded"),
                     ),
                     rx.cond(
                         ChatState.loader_processing,
-                        rx.text("learning is completed"),
-                        rx.text("learning is not completed"),
+                        rx.text("Learning is completed"),
+                        rx.text("Learning is not completed"),
                     ),
                     align_items="stretch",
                     width="100%",
@@ -134,7 +146,9 @@ def settingbar(trigger) -> rx.Component:
                 rx.vstack(
                     rx.heading("Settings", color=rx.color("mauve", 11)),
                     rx.divider(),
-                    rx.markdown("This app is created to test Solar LayoutAnalyzer. Please visit to the [Upstage AI](https://developers.upstage.ai/) for information on API keys."),
+                    rx.markdown(
+                        "This app is created to test Solar LayoutAnalyzer. Please visit to the [Upstage AI](https://developers.upstage.ai/) for information on API keys."
+                    ),
                     rx.divider(),
                     rx.heading("API KEY", color=rx.color("mauve", 11), size="3"),
                     rx.input(
