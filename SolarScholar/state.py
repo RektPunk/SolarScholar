@@ -34,7 +34,7 @@ class ChatState(rx.State):
     pdf_processing: bool = False
     loader_processing: bool = False
     pdf_path: str = ""
-    
+
     # A dict from the chat name to the list of questions and answers.
     chats: dict[str, list[QA]] = DEFAULT_CHATS
 
