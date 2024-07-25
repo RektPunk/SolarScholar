@@ -1,6 +1,6 @@
 # SolarScholar
 
-Welcome to the [Solar LLM](https://www.upstage.ai/solar-llm) Experimental Chat App, **"SolarScholar"**! This application is designed for testing and experimenting with prompts using Solar LLM from Upstage AI. Whether you're a researcher, developer, or enthusiast, this app provides a platform to interact with the model and explore its capabilities.
+Welcome to the [Solar LLM](https://www.upstage.ai/solar-llm) Experimental Chat App, "SolarScholar"! This application is designed for testing and experimenting with reading PDF context using Solar LLM from Upstage AI. Whether you're a researcher, developer, or enthusiast, this app provides a platform to interact with the model and explore its capabilities, including the ability to read and provide insights from PDF documents.
 
 ## Installation
 To get started, clone this repository and install the required dependencies:
