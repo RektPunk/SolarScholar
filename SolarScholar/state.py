@@ -21,7 +21,7 @@ DEFAULT_CHATS = {
 class ChatState(rx.State):
     """The app state."""
 
-    api_key: str = "up_757ar2mLw0GeP9C6UzseTFTAuFQsC"
+    api_key: str = ""
     prompt: str = """
         Please provide most correct answer from the following context. 
         Think step by step and look the html tags and table values carefully to provide the most correct answer.
