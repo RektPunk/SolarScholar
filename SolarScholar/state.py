@@ -50,9 +50,6 @@ class ChatState(rx.State):
     # The name of the new chat.
     new_chat_name: str = ""
 
-    def is_valid_setting(self) -> bool:
-        return self.api_key != "" and self.prompt != ""
-
     def create_chat(self):
         """Create a new chat."""
         # Add the new chat to the list of chats.
@@ -111,6 +108,14 @@ class ChatState(rx.State):
 
     async def process_question(self, form_data: dict[str, str]):
         # Get the question from the form
+        if self.api_key == "":
+            yield rx.window_alert("Please Input API KEY in setting tab")
+            return
+
+        if not self.loader_processing:
+            yield rx.window_alert("Please Input PDF file and smash 'Learn' button")
+            return
+
         question = form_data["question"]
 
         # Check if the question is empty
@@ -128,7 +133,6 @@ class ChatState(rx.State):
         Args:
             form_data: A dict with the current question.
         """
-
         # Add the question to the list of questions.
         qa = QA(question=question, answer="")
         self.chats[self.current_chat].append(qa)
