@@ -160,6 +160,9 @@ def settingbar(trigger) -> rx.Component:
                         required=True,
                     ),
                     rx.heading("Prompt", color=rx.color("mauve", 11), size="3"),
+                    rx.markdown(
+                        "To chat based on a PDF, you should write '{context}' in the prompt."
+                    ),
                     rx.text_area(
                         value=ChatState.prompt,
                         on_change=ChatState.set_prompt,

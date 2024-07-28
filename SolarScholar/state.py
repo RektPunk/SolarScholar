@@ -29,7 +29,7 @@ class ChatState(rx.State):
         ---
         Question: {question}
         ---
-        Context: {Context}
+        Context: {context}
         """
     pdf_processing: bool = False
     loader_processing: bool = False
@@ -103,7 +103,10 @@ class ChatState(rx.State):
             self.pdf_path, output_type="text", api_key=self.api_key
         )
         self.docs = self.layzer.load()
-        os.remove(self.pdf_path)
+        try:
+            os.remove(self.pdf_path)
+        except:
+            pass
         self.loader_processing = True
 
     async def process_question(self, form_data: dict[str, str]):
@@ -145,7 +148,7 @@ class ChatState(rx.State):
 
         prompt_template = PromptTemplate.from_template(self.prompt)
         chain = prompt_template | llm | StrOutputParser()
-        answer_text = chain.invoke({"question": question, "Context": self.docs})
+        answer_text = chain.invoke({"question": question, "context": self.docs})
 
         self.chats[self.current_chat][-1].answer += answer_text
 
